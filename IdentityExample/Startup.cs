@@ -7,6 +7,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using NETCore.MailKit.Extensions;
+using NETCore.MailKit.Infrastructure.Internal;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -34,9 +36,16 @@ namespace IdentityExample
                 config.Password.RequiredLength = 2;
                 config.Password.RequireUppercase = false;
                 config.Password.RequireNonAlphanumeric = false;
+                config.SignIn.RequireConfirmedEmail = true;
             })
                 .AddEntityFrameworkStores<AppDbContext>()
                 .AddDefaultTokenProviders();
+
+            services.AddMailKit(configs => 
+            {
+                var mailKitOptions = Configuration.GetSection("Email").Get<MailKitOptions>();
+                configs.UseMailKit(mailKitOptions);
+            });
 
 
             services.ConfigureApplicationCookie(config =>
